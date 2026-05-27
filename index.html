@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Water Sort</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "rxjs": "https://esm.sh/rxjs@7.8.1",
+        "rxjs/operators": "https://esm.sh/rxjs@7.8.1/operators"
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <div id="app">
+    <h1 class="title">Water Sort</h1>
+    <div id="game"></div>
+    <div class="controls">
+      <button id="btn-undo" aria-label="Undo last move">↩ Undo</button>
+      <button id="btn-restart" aria-label="Restart puzzle">↺ Restart</button>
+    </div>
+    <div id="win-overlay" class="win-overlay hidden" aria-live="polite">
+      <div class="win-box">
+        <div class="win-emoji">🎉</div>
+        <div class="win-text">Solved!</div>
+        <div id="win-moves" class="win-moves"></div>
+        <button id="btn-play-again">Play Again</button>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="src/main.js"></script>
+</body>
+
+</html>

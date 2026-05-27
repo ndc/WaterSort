@@ -1,0 +1,299 @@
+/* ── Color palette ── */
+:root {
+    --color-red: #e74c3c;
+    --color-blue: #3498db;
+    --color-green: #2ecc71;
+    --color-yellow: #f1c40f;
+    --color-orange: #e67e22;
+    --color-purple: #9b59b6;
+    --color-pink: #e91e8c;
+    --color-teal: #1abc9c;
+    --color-brown: #795548;
+    --color-gray: #95a5a6;
+
+    --tube-width: 56px;
+    --layer-height: 48px;
+    --tube-radius: 0 0 28px 28px;
+    --gap: 16px;
+    --bg: #1a1a2e;
+    --tube-bg: rgba(255, 255, 255, 0.07);
+    --tube-border: rgba(255, 255, 255, 0.18);
+    --selection-glow: 0 0 0 3px #f1c40f, 0 0 12px #f1c40faa;
+    --focus-glow: 0 0 0 3px #3498db, 0 0 12px #3498dbaa;
+    --anim-pour: 320ms ease-in-out;
+}
+
+/* ── Reset & base ── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--bg);
+    color: #eee;
+    font-family: system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 24px;
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    opacity: 0.9;
+}
+
+/* ── Game area ── */
+#game {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap);
+    justify-content: center;
+    align-items: flex-end;
+}
+
+/* ── Tube ── */
+.tube {
+    display: flex;
+    flex-direction: column-reverse; /* layers stack bottom-up */
+    width: var(--tube-width);
+    border: 2px solid var(--tube-border);
+    border-top: none;
+    border-radius: var(--tube-radius);
+    background: var(--tube-bg);
+    cursor: pointer;
+    position: relative;
+    transition:
+        transform 150ms ease,
+        box-shadow 150ms ease;
+    outline: none;
+    user-select: none;
+}
+
+.tube:hover {
+    transform: translateY(-4px);
+}
+
+.tube.selected {
+    box-shadow: var(--selection-glow);
+    transform: translateY(-8px);
+}
+
+.tube.focused {
+    box-shadow: var(--focus-glow);
+}
+
+.tube.dragging {
+    transform: translateY(-12px) scale(1.04);
+    opacity: 0.85;
+}
+
+/* ── Liquid layer ── */
+.layer {
+    width: 100%;
+    height: var(--layer-height);
+    transition:
+        height var(--anim-pour),
+        opacity var(--anim-pour);
+    border-radius: 0;
+}
+
+/* first (bottom) layer gets rounded bottom */
+.layer:first-child {
+    border-radius: 0 0 26px 26px;
+}
+
+/* ── Color assignments ── */
+.layer[data-color="red"] {
+    background: var(--color-red);
+}
+.layer[data-color="blue"] {
+    background: var(--color-blue);
+}
+.layer[data-color="green"] {
+    background: var(--color-green);
+}
+.layer[data-color="yellow"] {
+    background: var(--color-yellow);
+}
+.layer[data-color="orange"] {
+    background: var(--color-orange);
+}
+.layer[data-color="purple"] {
+    background: var(--color-purple);
+}
+.layer[data-color="pink"] {
+    background: var(--color-pink);
+}
+.layer[data-color="teal"] {
+    background: var(--color-teal);
+}
+.layer[data-color="brown"] {
+    background: var(--color-brown);
+}
+.layer[data-color="gray"] {
+    background: var(--color-gray);
+}
+
+/* empty placeholder slot */
+.layer.empty {
+    background: transparent;
+    height: var(--layer-height);
+}
+
+/* ── Layer enter/exit animations ── */
+@keyframes layer-in {
+    from {
+        transform: scaleY(0);
+        opacity: 0;
+    }
+    to {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+
+@keyframes layer-out {
+    from {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+    to {
+        transform: scaleY(0);
+        opacity: 0;
+    }
+}
+
+.layer.entering {
+    animation: layer-in var(--anim-pour) ease-out forwards;
+    transform-origin: bottom;
+}
+.layer.exiting {
+    animation: layer-out var(--anim-pour) ease-in forwards;
+    transform-origin: top;
+}
+
+/* ── Controls ── */
+.controls {
+    display: flex;
+    gap: 12px;
+}
+
+.controls button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #eee;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 150ms;
+}
+
+.controls button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+.controls button:active {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-6px);
+    }
+    40% {
+        transform: translateX(6px);
+    }
+    60% {
+        transform: translateX(-4px);
+    }
+    80% {
+        transform: translateX(4px);
+    }
+}
+
+/* ── Win overlay ── */
+.win-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+}
+
+.win-overlay.hidden {
+    display: none;
+}
+
+.win-box {
+    background: #16213e;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 40px 60px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    animation: pop-in 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pop-in {
+    from {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.win-emoji {
+    font-size: 3rem;
+}
+.win-text {
+    font-size: 2rem;
+    font-weight: 700;
+}
+.win-moves {
+    font-size: 1rem;
+    opacity: 0.7;
+}
+
+.win-box button {
+    margin-top: 8px;
+    background: #3498db;
+    border: none;
+    color: #fff;
+    padding: 10px 32px;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 150ms;
+}
+
+.win-box button:hover {
+    background: #2980b9;
+}
